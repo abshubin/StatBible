@@ -21,6 +21,10 @@ public class FrequencyTrie {
         }
     }
 
+    /*
+     * Takes a word, returns the number of times that word or
+     * a word starting with that word occurs in the starting text.
+     */
     public int countWord(String word) {
         // Clean up the word...
         String cleanWord = "";
@@ -38,8 +42,9 @@ public class FrequencyTrie {
         while (current != null) {
             if (current != root) {
                 partial += current.getLetter();
+                index++;
             }
-            if (cleanWord == partial) {
+            if (cleanWord.equals(partial)) {
                 count = current.getCount();
                 break;
             }
@@ -48,9 +53,37 @@ public class FrequencyTrie {
         return count;
     }
 
+    /*
+     * Takes a word like countWord(String), but returns an array of all substrings
+     * of the word starting with index = 0 and ending with index = index of int in array.
+     */
     public int[] countParts(String word) {
         int[] counts = new int[word.length()];
-        // TODO
+
+        // Clean up the word...
+        String cleanWord = "";
+        for (char c : word.toLowerCase().toCharArray()) {
+            if (Character.isLetter(c)) {
+                cleanWord += c;
+            }
+        }
+
+        // Find the correct node...
+        int index = 0;
+        String partial = "";
+        FTNode current = root;
+        while (current != null) {
+            if (current != root) {
+                partial += current.getLetter();
+                counts[index] = current.getCount();
+                index++;
+            }
+            if (cleanWord.equals(partial)) {
+                break;
+            }
+            current = current.find(cleanWord.charAt(index));
+        }
+
         return counts;
     }
 
@@ -61,29 +94,6 @@ public class FrequencyTrie {
             current = current.add(letter);
         }
     }
-
-    // =========== FOR USE WITH UNIT TESTS ===========
-
-    public void TEST_OUT(String word) {
-        //p("Testing for '" + word + "'");
-        FTNode current = root;
-        p("Level 2 (t)");
-        current = current.child;
-        while (current.getLetter() != 't') {
-            current = current.next;
-        }
-        current = current.child;
-        while (current != null) {
-            System.out.println(current);
-            current = current.next;
-        }
-    }
-
-    private void p(String message) {
-        System.out.println(message);
-    }
-
-    // ======== END TEST CODE =======================
 
     private class FTNode {
 

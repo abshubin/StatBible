@@ -28,10 +28,6 @@ public class FrequencyTrieUnitTest {
         final int expected2_th = 5;
 
         // Act
-//        System.out.println("===== TRIE 1 =====");
-//        trie1.TEST_OUT("this");
-//        System.out.println("===== TRIE 2 =====");
-//        trie2.TEST_OUT("this");
         final int actual1_is = trie1.countWord("is");
         final int actual1_this = trie1.countWord("this");
         final int actual1_thing = trie1.countWord("thing");
@@ -50,7 +46,20 @@ public class FrequencyTrieUnitTest {
 
     @Test
     public void countParts_isCorrect() throws Exception {
-        // TODO
-        assertTrue(true);
+        // Arrange
+        String text = "This is some text that is a thing.";
+        FrequencyTrie trie = new FrequencyTrie(text);
+        final String search = "this";
+        final int[] expected = {4, 3, 2, 1};
+
+        // Act
+        final int[] actual = trie.countParts(search);
+
+        // Assert
+        assertEquals("FAILED, arrays are not same length.", expected.length, actual.length);
+        assertEquals("FAILED, first index different.", expected[0], actual[0]);
+        assertEquals("FAILED, second index different.", expected[1], actual[1]);
+        assertEquals("FAILED, third index different.", expected[2], actual[2]);
+        assertEquals("FAILED, fourth index different.", expected[3], actual[3]);
     }
 }
