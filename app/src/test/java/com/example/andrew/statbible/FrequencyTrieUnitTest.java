@@ -1,5 +1,7 @@
 package com.example.andrew.statbible;
 
+import com.example.andrew.statbible.tools.FrequencyTrie;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -10,10 +12,45 @@ import static org.junit.Assert.*;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class FrequencyTrieUnitTest {
+
     @Test
-    public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+    public void countWord_isCorrect() throws Exception {
+        // Arrange
+        String text1 = "This is some text that is a thing.";
+        String text2 = "This is this and that is that this.";
+        FrequencyTrie trie1 = new FrequencyTrie(text1);
+        FrequencyTrie trie2 = new FrequencyTrie(text2);
+        final int expected1_is = 2;
+        final int expected1_this = 1;
+        final int expected1_thing = 1;
+        final int expected2_this = 3;
+        final int expected2_that = 2;
+        final int expected2_th = 5;
+
+        // Act
+//        System.out.println("===== TRIE 1 =====");
+//        trie1.TEST_OUT("this");
+//        System.out.println("===== TRIE 2 =====");
+//        trie2.TEST_OUT("this");
+        final int actual1_is = trie1.countWord("is");
+        final int actual1_this = trie1.countWord("this");
+        final int actual1_thing = trie1.countWord("thing");
+        final int actual2_this = trie2.countWord("this");
+        final int actual2_that = trie2.countWord("that");
+        final int actual2_th = trie2.countWord("th");
+
+        // Assert
+        assertEquals("FAILED for 'is' in trie1.", expected1_is, actual1_is);
+        assertEquals("FAILED for 'this' in trie1.", expected1_this, actual1_this);
+        assertEquals("FAILED for 'thing' in trie1.", expected1_thing, actual1_thing);
+        assertEquals("FAILED for 'this' in trie2.", expected2_this, actual2_this);
+        assertEquals("FAILED for 'that' in trie2.", expected2_that, actual2_that);
+        assertEquals("FAILED for 'th' in trie2.", expected2_th, actual2_th);
     }
 
-    // TODO: write some tests for the Trie...
+    @Test
+    public void countParts_isCorrect() throws Exception {
+        // TODO
+        assertTrue(true);
+    }
 }

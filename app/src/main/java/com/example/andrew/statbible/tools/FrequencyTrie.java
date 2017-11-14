@@ -10,6 +10,10 @@ public class FrequencyTrie {
 
     private FTNode root;
 
+    private FrequencyTrie() {
+        // Should not be used.
+    }
+
     public FrequencyTrie(String source) {
         root = new FTNode();
         for (String word : source.toLowerCase().split(" ")) {
@@ -18,8 +22,30 @@ public class FrequencyTrie {
     }
 
     public int countWord(String word) {
-        // TODO
-        return 0;
+        // Clean up the word...
+        String cleanWord = "";
+        for (char c : word.toLowerCase().toCharArray()) {
+            if (Character.isLetter(c)) {
+                cleanWord += c;
+            }
+        }
+
+        // Find the correct node...
+        int count = 0;
+        int index = 0;
+        String partial = "";
+        FTNode current = root;
+        while (current != null) {
+            if (current != root) {
+                partial += current.getLetter();
+            }
+            if (cleanWord == partial) {
+                count = current.getCount();
+                break;
+            }
+            current = current.find(cleanWord.charAt(index));
+        }
+        return count;
     }
 
     public int[] countParts(String word) {
@@ -35,6 +61,29 @@ public class FrequencyTrie {
             current = current.add(letter);
         }
     }
+
+    // =========== FOR USE WITH UNIT TESTS ===========
+
+    public void TEST_OUT(String word) {
+        //p("Testing for '" + word + "'");
+        FTNode current = root;
+        p("Level 2 (t)");
+        current = current.child;
+        while (current.getLetter() != 't') {
+            current = current.next;
+        }
+        current = current.child;
+        while (current != null) {
+            System.out.println(current);
+            current = current.next;
+        }
+    }
+
+    private void p(String message) {
+        System.out.println(message);
+    }
+
+    // ======== END TEST CODE =======================
 
     private class FTNode {
 
@@ -67,37 +116,12 @@ public class FrequencyTrie {
                 child = new FTNode(c);
                 return child;
             }
-            FTNode result = this.search(child, c);
+            FTNode result = this.search(c);
             if (result == null) {
                 result = new FTNode(c);
                 // Now insert it into the Trie...
                 result.next = child;
                 child = result;
-            } else {
-                result.count++;
-            }
-            return result;
-        }
-
-        /*
-         * Method adds character c as the neighbor of this node in the same
-         * manner and with the same stipulations as the add(char c) method.
-         *
-         * I'm not sure if I'll need this...implemented it just in case. For
-         * now, I'm making it private so I don't use it by accident if I
-         * don't need to.
-         */
-        private FTNode stack(char c) {
-            if (!Character.isLetter(c)) return this; // i.e. nothing happens.
-            FTNode result = this.search(this, c);
-            if (result == null) {
-                result = new FTNode(c);
-                if (next == null) {
-                    next = result;
-                } else {
-                    result.next = next;
-                    next = result;
-                }
             } else {
                 result.count++;
             }
@@ -111,7 +135,7 @@ public class FrequencyTrie {
          */
         public FTNode find(char c) {
             if (child == null) return null;
-            return this.search(child, c);
+            return this.search(c);
         }
 
         public int getCount() {
@@ -123,17 +147,24 @@ public class FrequencyTrie {
         }
 
         /*
-         * Searches neighbors starting with 'start' for 'letter'.
+         * Searches children for 'letter'.
+         *
+         * Returns node of letter if found, otherwise null.
          */
-        private FTNode search(FTNode start, char letter) {
-            FTNode current = start;
+        private FTNode search(char letter) {
+            FTNode current = this.child;
             while (current != null) {
-                if (current.letter == letter) {
-                    return current;
+                if (current.getLetter() == letter) {
+                    break;
                 }
                 current = current.next;
             }
-            return null; // If matching node not found.
+            return current;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + letter + "," + count + "]";
         }
     }
 }
