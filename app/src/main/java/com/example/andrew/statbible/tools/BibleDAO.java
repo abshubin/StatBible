@@ -42,6 +42,10 @@ public class BibleDAO {
         }
     }
 
+    public String getBookName() {
+        return bookName;
+    }
+
     /*
      * Returns:
      *
@@ -106,9 +110,14 @@ public class BibleDAO {
                 boolean started = false;
                 while ((line = br.readLine()) != null) {
                     if (started) {
-                        // TODO: fill to end
+                        if (line.startsWith(endChapter + ":" + endVerse + " " + end[1])) {
+                            passageText += " " + stripReference(line);
+                            break;
+                        } else {
+                            passageText += " " + stripReference(line);
+                        }
                     } else {
-                        if (line.equals(start[0] + " " + start[1])) {
+                        if (line.startsWith(startChapter + ":" + startVerse + " " + start[1])) {
                             passageText = stripReference(line);
                             started = true;
                         }
@@ -183,43 +192,5 @@ public class BibleDAO {
         }
 
         return set;
-    }
-
-    /*
-     * TEST CODE: Finds all the book headers.
-     */
-
-    public static void main(String[] args) {
-        // /home/andrew/AndroidStudioProjects/StatBible/app/src/main/java/com/example/andrew/statbible/tools/kjv.txt
-        File kjv = new File("/home/andrew/AndroidStudioProjects/StatBible/app/src/main/java/com/example/andrew/statbible/tools/kjv.txt");
-
-        System.out.println("IMPENDING PRINT OF ALL KJV HEADERS");
-
-        try (BufferedReader br = new BufferedReader(new FileReader(kjv))) {
-            String previous = "";
-            String line;
-            int lines = 0;
-            while ((line = br.readLine()) != null) {
-                if (!line.contains("The Old Testament of the King James Version of the Bible")) {
-                    int end = line.length();
-                    if (line.length() > 5) {
-                        end = 5;
-                    } else {
-                        previous = line;
-                        continue;
-                    }
-                    if (previous.equals("") && !line.substring(0, end).contains(":")) {
-                        if (line.startsWith("The ")) {
-                            System.out.println(line);
-                            lines++;
-                        }
-                    }
-                }
-                previous = line;
-            }
-            System.out.println("LINE COUNT: " + lines);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
     }
 }

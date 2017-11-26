@@ -12,10 +12,12 @@ import static org.junit.Assert.*;
  */
 public class BibleDAOUnitTest {
 
+    private static final String INVALID_REFERENCE_MESSAGE = "INVALID REFERENCE";
+
     @Test
     public void basicTestOf_BibleDAO_getVerse() throws Exception {
         // Arrange
-        BibleDAO mark = new BibleDAO("mark");
+        BibleDAO mark = new BibleDAO("Mark");
         final int chapter = 2;
         final int verse = 17;
         final String expected_reference = "Mark 2:17";
@@ -30,8 +32,74 @@ public class BibleDAOUnitTest {
         final String actual_passage = actual[1];
 
         // Assert
-        assertEquals("FAILED on basic getVerse test (reference).", expected_reference, actual_reference);
-        assertEquals("FAILED on basic getVerse test (passage).", expected_passage, actual_passage);
+        assertEquals("FAILED on basic getVerse test (reference).",
+                expected_reference, actual_reference);
+        assertEquals("FAILED on basic getVerse test (passage).",
+                expected_passage, actual_passage);
+    }
+
+    @Test
+    public void testInvalidVerseIn_BibleDAO_getVerse() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final int chapter = 2;
+        final int verse = 93;
+        final String expected_reference = "James 2:93";
+        final String expected_passage = INVALID_REFERENCE_MESSAGE;
+
+        // Act
+        final String[] actual = james.getVerse(chapter, verse);
+
+        // Assert
+        assertEquals("FAILED on test of invalid verse in getVerse (reference).",
+                expected_reference, actual[0]);
+        assertEquals("FAILED on test of invalid verse in getVerse (passage).",
+                expected_passage, actual[1]);
+    }
+
+    @Test
+    public void testInvalidChapterIn_BibleDAO_getVerse() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final int chapter = 9;
+        final int verse = 1;
+        final String expected_reference = "James 9:1";
+        final String expected_passage = INVALID_REFERENCE_MESSAGE;
+
+        // Act
+        final String[] actual = james.getVerse(chapter, verse);
+
+        // Assert
+        assertEquals("FAILED on test of invalid chapter in getVerse (reference).",
+                expected_reference, actual[0]);
+        assertEquals("FAILED on test of invalid chapter in getVerse (passage).",
+                expected_passage, actual[1]);
+    }
+
+    @Test
+    public void testInvalidBookUsing_BibleDAO_getBookName() throws Exception {
+        // Arrange
+        BibleDAO notJames = new BibleDAO("james");
+        final String defaultBook = "Mark";  // expected
+
+        // Act
+        final String actualBook = notJames.getBookName();
+
+        // Assert
+        assertEquals("FAILED on test of invalid book using getBookName.", defaultBook, actualBook);
+    }
+
+    @Test
+    public void testValidBookUsing_BibleDAO_getBookName() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final String expected = "James";  // expected
+
+        // Act
+        final String actual = james.getBookName();
+
+        // Assert
+        assertEquals("FAILED on test of valid book using getBookName.", expected, actual);
     }
 
     @Test
@@ -58,7 +126,135 @@ public class BibleDAOUnitTest {
         final String actual_passage = actual[1];
 
         // Assert
-        assertEquals("FAILED on basic getRange test (reference).", expected_reference, actual_reference);
-        assertEquals("FAILED on basic getRange test (passage).", expected_passage, actual_passage);
+        assertEquals("FAILED on basic getRange test (reference).",
+                expected_reference, actual_reference);
+        assertEquals("FAILED on basic getRange test (passage).",
+                expected_passage, actual_passage);
+    }
+
+    @Test
+    public void testInvalidStartVerseIn_BibleDAO_getRange() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final int startChapter = 2;
+        final int startVerse = 93;
+        final int endChapter = 3;
+        final int endVerse = 3;
+        final String expected_reference = "James 2:93 - 3:3";
+        final String expected_passage = INVALID_REFERENCE_MESSAGE;
+
+        // Act
+        final String[] actual = james.getRange(startChapter, startVerse, endChapter, endVerse);
+
+        // Assert
+        assertEquals("FAILED on test of invalid start verse in getRange (reference).",
+                expected_reference, actual[0]);
+        assertEquals("FAILED on test of invalid start verse in getRange (passage).",
+                expected_passage, actual[1]);
+    }
+
+    @Test
+    public void testInvalidEndVerseIn_BibleDAO_getRange() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final int startChapter = 2;
+        final int startVerse = 2;
+        final int endChapter = 3;
+        final int endVerse = 99;
+        final String expected_reference = "James 2:2 - 3:99";
+        final String expected_passage = INVALID_REFERENCE_MESSAGE;
+
+        // Act
+        final String[] actual = james.getRange(startChapter, startVerse, endChapter, endVerse);
+
+        // Assert
+        assertEquals("FAILED on test of invalid end verse in getRange (reference).",
+                expected_reference, actual[0]);
+        assertEquals("FAILED on test of invalid end verse in getRange (passage).",
+                expected_passage, actual[1]);
+    }
+
+    @Test
+    public void testInvalidStartChapterIn_BibleDAO_getRange() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final int startChapter = 0;
+        final int startVerse = 2;
+        final int endChapter = 3;
+        final int endVerse = 5;
+        final String expected_reference = "James 0:2 - 3:5";
+        final String expected_passage = INVALID_REFERENCE_MESSAGE;
+
+        // Act
+        final String[] actual = james.getRange(startChapter, startVerse, endChapter, endVerse);
+
+        // Assert
+        assertEquals("FAILED on test of invalid start chapter in getRange (reference).",
+                expected_reference, actual[0]);
+        assertEquals("FAILED on test of invalid start chapter in getRange (passage).",
+                expected_passage, actual[1]);
+    }
+
+    @Test
+    public void testInvalidEndChapterIn_BibleDAO_getRange() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final int startChapter = 2;
+        final int startVerse = 2;
+        final int endChapter = 40;
+        final int endVerse = 5;
+        final String expected_reference = "James 2:2 - 40:5";
+        final String expected_passage = INVALID_REFERENCE_MESSAGE;
+
+        // Act
+        final String[] actual = james.getRange(startChapter, startVerse, endChapter, endVerse);
+
+        // Assert
+        assertEquals("FAILED on test of invalid end chapter in getRange (reference).",
+                expected_reference, actual[0]);
+        assertEquals("FAILED on test of invalid end chapter in getRange (passage).",
+                expected_passage, actual[1]);
+    }
+
+    @Test
+    public void testChaptersMisorderedIn_BibleDAO_getRange() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final int startChapter = 2;
+        final int startVerse = 2;
+        final int endChapter = 1;
+        final int endVerse = 5;
+        final String expected_reference = "James 2:2 - 1:5";
+        final String expected_passage = INVALID_REFERENCE_MESSAGE;
+
+        // Act
+        final String[] actual = james.getRange(startChapter, startVerse, endChapter, endVerse);
+
+        // Assert
+        assertEquals("FAILED on test of chapters misordered in getRange (reference).",
+                expected_reference, actual[0]);
+        assertEquals("FAILED on test of chapters misordered in getRange (passage).",
+                expected_passage, actual[1]);
+    }
+
+    @Test
+    public void testVersesMisorderedIn_BibleDAO_getRange() throws Exception {
+        // Arrange
+        BibleDAO james = new BibleDAO("James");
+        final int startChapter = 2;
+        final int startVerse = 2;
+        final int endChapter = 2;
+        final int endVerse = 1;
+        final String expected_reference = "James 2:2-1";
+        final String expected_passage = INVALID_REFERENCE_MESSAGE;
+
+        // Act
+        final String[] actual = james.getRange(startChapter, startVerse, endChapter, endVerse);
+
+        // Assert
+        assertEquals("FAILED on test of verses misordered in getRange (reference).",
+                expected_reference, actual[0]);
+        assertEquals("FAILED on test of verses misordered in getRange (passage).",
+                expected_passage, actual[1]);
     }
 }
