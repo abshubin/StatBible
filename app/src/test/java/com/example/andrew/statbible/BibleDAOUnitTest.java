@@ -257,4 +257,26 @@ public class BibleDAOUnitTest {
         assertEquals("FAILED on test of verses misordered in getRange (passage).",
                 expected_passage, actual[1]);
     }
+
+    @Test
+    public void testVerseCountingIn_BibleDAO_getVerseCount() throws Exception {
+        // Arrange
+        BibleDAO psalms = new BibleDAO("Psalms");
+        final int shortChapter = 117;
+        final int shortVerseCount = 2;
+        final int midChapter = 118;
+        final int midVerseCount = 29;
+        final int longChapter = 119;
+        final int longVerseCount = 176;
+
+        // Act
+        final int shortCount = psalms.getVerseCount(shortChapter);
+        final int midCount = psalms.getVerseCount(midChapter);
+        final int longCount = psalms.getVerseCount(longChapter);
+
+        // Assert
+        assertEquals("FAILED on short verse count.", shortVerseCount, shortCount);
+        assertEquals("FAILED on mid verse count.", midVerseCount, midCount);
+        assertEquals("FAILED on long verse count.", longVerseCount, longCount);
+    }
 }

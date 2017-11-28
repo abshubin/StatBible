@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -18,11 +19,7 @@ public class BibleDAO {
 
     private String bookName;
     private File book;
-    private int startChapter;
-    private int startVerse;
-    private int endChapter;
-    private int endVerse;
-    private String[] text; // divided by verses
+    private int[] verseCounts; // verse counts for each chapter, 1-indexed (0 index unused)
 
     // Gets just the book specified
     public BibleDAO(String book) {
@@ -37,6 +34,7 @@ public class BibleDAO {
         for (File file : dir.listFiles()) {
             if (file.getName().startsWith(bookNum + "")) {
                 this.book = file;
+                countVerses();
                 return;
             }
         }
@@ -130,6 +128,44 @@ public class BibleDAO {
 
         String[] resultPackage = {referenceText, passageText};
         return resultPackage;
+    }
+
+    /*
+     * Returns the number of verses in the specified chapter.
+     */
+    public int getVerseCount(int chapter) {
+        return verseCounts[chapter];
+    }
+
+    private void countVerses() {
+        try(BufferedReader br = new BufferedReader(new FileReader(book))) {
+            ArrayList<Integer> chapters = new ArrayList<>(); // tallys up the chapters and their
+                                                             // verse counts.
+            String line;
+            int currentChapter = 0;
+            int currentVerseCount = 0;
+            while ((line = br.readLine()) != null) {
+                if (line.substring(0, 5).contains(":")) {
+                    String reference = line.split(" ")[0];
+                    int chapter = Integer.parseInt(reference.split(":")[0]);
+                    if (chapter == currentChapter) {
+                        currentVerseCount++;
+                    } else {
+                        currentChapter++;
+                        chapters.add(currentVerseCount);
+                        currentVerseCount = 1;
+                    }
+                }
+            }
+            chapters.add(currentVerseCount);
+
+            verseCounts = new int[chapters.size()];
+            for (int i = 0; i < chapters.size(); i++) {
+                verseCounts[i] = chapters.get(i);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static String stripReference(String rawVerse) {

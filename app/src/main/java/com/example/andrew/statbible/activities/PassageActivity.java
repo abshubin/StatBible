@@ -1,6 +1,8 @@
 package com.example.andrew.statbible.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +14,20 @@ import com.example.andrew.statbible.R;
 
 public class PassageActivity extends AppCompatActivity {
 
+    private static final String EXTRA_PASSAGE_REFERENCE =
+            "com.example.andrew.statbible.passage_reference";
+    private static final String EXTRA_PASSAGE_TEXT =
+            "com.example.andrew.statbible.passage_text";
+
     Button mInfoButton;
+
+    public static Intent newIntent(Context packageContext, String passageReference,
+                                   String passageText) {
+        Intent intent = new Intent(packageContext, PassageActivity.class);
+        intent.putExtra(EXTRA_PASSAGE_REFERENCE, passageReference);
+        intent.putExtra(EXTRA_PASSAGE_TEXT, passageText);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +39,7 @@ public class PassageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 FragmentManager manager = getSupportFragmentManager();
                 AlertDialog alertDialog = new AlertDialog.Builder(PassageActivity.this).create();
-                alertDialog.setTitle("Info");
+                alertDialog.setTitle("Formatting Info");
                 alertDialog.setMessage(getString(R.string.info_text));
                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                         new DialogInterface.OnClickListener() {
