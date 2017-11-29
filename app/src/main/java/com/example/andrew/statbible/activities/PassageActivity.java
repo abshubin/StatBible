@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.andrew.statbible.R;
 
@@ -20,6 +21,7 @@ public class PassageActivity extends AppCompatActivity {
             "com.example.andrew.statbible.passage_text";
 
     Button mInfoButton;
+    TextView mTextView;
 
     public static Intent newIntent(Context packageContext, String passageReference,
                                    String passageText) {
@@ -50,5 +52,9 @@ public class PassageActivity extends AppCompatActivity {
                 alertDialog.show();
             }
         });
+
+        mTextView = (TextView) findViewById(R.id.textView);
+        String text = savedInstanceState.getString(EXTRA_PASSAGE_REFERENCE);
+        mTextView.setText(text);
     }
 }

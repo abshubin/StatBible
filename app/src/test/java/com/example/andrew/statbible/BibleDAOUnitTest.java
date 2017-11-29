@@ -279,4 +279,21 @@ public class BibleDAOUnitTest {
         assertEquals("FAILED on mid verse count.", midVerseCount, midCount);
         assertEquals("FAILED on long verse count.", longVerseCount, longCount);
     }
+
+    @Test
+    public void testChapterCounterIn_BibleDAO_getChapterCount() throws Exception {
+        // Arrange
+        BibleDAO philemon = new BibleDAO("Philemon");
+        BibleDAO psalms = new BibleDAO("Psalms");
+        final int philemonLength = 1;
+        final int psalmsLength = 150;
+
+        // Act
+        final int philemonCount = philemon.getChapterCount();
+        final int psalmsCount = psalms.getChapterCount();
+
+        // Assert
+        assertEquals("FAILED on counting Philemon's chapters.", philemonLength, philemonCount);
+        assertEquals("FAILED on counting the Psalms.", psalmsLength, psalmsCount);
+    }
 }

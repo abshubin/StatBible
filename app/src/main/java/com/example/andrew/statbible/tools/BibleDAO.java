@@ -1,5 +1,8 @@
 package com.example.andrew.statbible.tools;
 
+import android.content.res.AssetManager;
+import android.content.res.Resources;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -21,8 +24,10 @@ public class BibleDAO {
     private File book;
     private int[] verseCounts; // verse counts for each chapter, 1-indexed (0 index unused)
 
-    // Gets just the book specified
+    // Gets just the book specified -- for testing only
     public BibleDAO(String book) {
+
+        /* OLD WAY OF DOING IT -- DOESN'T WORK IN APP */
         File dir = new File("/home/andrew/AndroidStudioProjects/StatBible/app/" +
                             "src/main/java/com/example/andrew/statbible/tools/kjv");
         int bookNum = getBookNumber(book);
@@ -38,6 +43,13 @@ public class BibleDAO {
                 return;
             }
         }
+    }
+
+    // Also sets up the book, but takes the file object instead...
+    public BibleDAO(File book) {
+        String[] parts = book.getName().split(" ");
+        bookName = parts[parts.length - 1];
+        countVerses();
     }
 
     public String getBookName() {
@@ -134,7 +146,14 @@ public class BibleDAO {
      * Returns the number of verses in the specified chapter.
      */
     public int getVerseCount(int chapter) {
+        if (chapter >= verseCounts.length || chapter < verseCounts.length) {
+            return 0;
+        }
         return verseCounts[chapter];
+    }
+
+    public int getChapterCount() {
+        return verseCounts.length - 1;
     }
 
     private void countVerses() {
@@ -184,7 +203,7 @@ public class BibleDAO {
         return cleanText;
     }
 
-    private static int getBookNumber(String simpleName) {
+    public static int getBookNumber(String simpleName) {
         final String[] names = getBookNames();
 
         for (int i = 0; i < 66; i++) {
@@ -196,7 +215,7 @@ public class BibleDAO {
         return 0;
     }
 
-    private static String[] getBookNames() {
+    public static String[] getBookNames() {
         String[] books = { "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges",
                  "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles",
                  "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", "Psalms", "Proverbs",
