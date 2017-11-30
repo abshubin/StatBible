@@ -1,5 +1,9 @@
 package com.example.andrew.statbible.tools;
 
+import android.app.Application;
+
+import java.io.InputStream;
+
 /**
  * Created by andrew on 11/10/17.
  */
@@ -7,18 +11,33 @@ package com.example.andrew.statbible.tools;
 public class FrequencyTrie {
 
     private final static char ROOT = '^';
+    private final static int SEED = 5;  // not particularly researched...
 
     private FTNode root;
+    private String[] stopwords;
 
     private FrequencyTrie() {
         // Should not be used.
     }
 
-    public FrequencyTrie(String source) {
+    public FrequencyTrie(String source, String[] stopwords) {
         root = new FTNode();
         for (String word : source.toLowerCase().split(" ")) {
             this.add(word);
         }
+        this.stopwords = stopwords;
+    }
+
+    public int score(String word) {
+        word = word.trim().toLowerCase();
+        if (isStopword(word)) return 0;
+        int[] partCounts = countParts(word);
+        int score = 0;
+        for (int i = 0; i < partCounts.length; i++) {
+            if (i == SEED) break;
+            score += (SEED - i) * (partCounts[partCounts.length - 1 - i]);
+        }
+        return score;
     }
 
     /*
@@ -93,6 +112,21 @@ public class FrequencyTrie {
         for (char letter : letters) {
             current = current.add(letter);
         }
+    }
+
+    private boolean isStopword(String word) {
+        for (String stopword : stopwords) {
+            String cleanWord = "";
+            for (int i = 0; i < word.length(); i++) {
+                if (Character.isLetter(word.charAt(i))) {
+                    cleanWord += word.charAt(i);
+                }
+            }
+            if (cleanWord.equals(stopword.toLowerCase().trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private class FTNode {

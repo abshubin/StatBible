@@ -46,9 +46,15 @@ public class MainActivity extends AppCompatActivity {
         mGoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = book.getBookName() + " " + start + " - " + end;
-                Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-                toast.show();
+//                String message = book.getBookName() + " " + start + " - " + end;
+//                Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+//                toast.show();
+
+                if (start > 0 && end > 0 && book != null) {
+                    String[] range = book.getRange(start, 1, end, book.getVerseCount(end));
+                    Intent intent = PassageActivity.newIntent(MainActivity.this, range[0], range[1]);
+                    startActivity(intent);
+                }
             }
         });
 
