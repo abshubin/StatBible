@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,7 +65,10 @@ public class DBHelper extends SQLiteOpenHelper implements DatabaseInterface {
         boolean dbExist = checkDataBase();
 
         if(dbExist){
-            //do nothing - database already exist
+            /* NOTHING NEEDS TO BE DONE */
+//            myContext.deleteDatabase(DB_NAME);
+//            boolean exists = checkDataBase();
+//            int i = 8;
         }else{
 
             //By calling this method and empty database will be created into the default system path
@@ -77,7 +81,7 @@ public class DBHelper extends SQLiteOpenHelper implements DatabaseInterface {
 
             } catch (IOException e) {
 
-                throw new Error("Error copying database");
+                e.printStackTrace();
 
             }
         }
@@ -119,7 +123,7 @@ public class DBHelper extends SQLiteOpenHelper implements DatabaseInterface {
     private void copyDataBase() throws IOException{
 
         //Open your local db as the input stream
-        InputStream myInput = myContext.getAssets().open(DB_NAME);
+        InputStream myInput = myContext.getAssets().open(DB_NAME + ".db");
 
         // Path to the just created empty db
         String outFileName = DB_PATH + DB_NAME;
