@@ -58,12 +58,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                // TODO
+                end = Integer.parseInt((String) adapterView.getItemAtPosition(i));
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                // TODO
+                // do nothing
             }
         });
 
@@ -73,12 +73,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                // TODO
+                start = Integer.parseInt((String) adapterView.getItemAtPosition(i));
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                // TODO
+                // do nothing
             }
         });
 
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
+                // do nothing
             }
         });
     }
