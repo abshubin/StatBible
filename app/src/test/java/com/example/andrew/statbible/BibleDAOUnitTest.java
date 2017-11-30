@@ -1,23 +1,65 @@
 package com.example.andrew.statbible;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.database.DatabaseErrorHandler;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.UserHandle;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresPermission;
+import android.support.annotation.StringDef;
+import android.support.annotation.StyleRes;
+import android.view.Display;
+
 import com.example.andrew.statbible.tools.BibleDAO;
 import com.example.andrew.statbible.tools.FrequencyTrie;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
 /**
  * Unit testing for the BibleDAO.
  */
+
 public class BibleDAOUnitTest {
 
     private static final String INVALID_REFERENCE_MESSAGE = "INVALID REFERENCE";
 
+
+
     @Test
     public void basicTestOf_BibleDAO_getVerse() throws Exception {
         // Arrange
-        BibleDAO mark = new BibleDAO("Mark");
+        BibleDAO mark = new BibleDAO("Mark", null);
         final int chapter = 2;
         final int verse = 17;
         final String expected_reference = "Mark 2:17";
@@ -41,7 +83,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testInvalidVerseIn_BibleDAO_getVerse() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final int chapter = 2;
         final int verse = 93;
         final String expected_reference = "James 2:93";
@@ -60,7 +102,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testInvalidChapterIn_BibleDAO_getVerse() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final int chapter = 9;
         final int verse = 1;
         final String expected_reference = "James 9:1";
@@ -79,7 +121,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testInvalidBookUsing_BibleDAO_getBookName() throws Exception {
         // Arrange
-        BibleDAO notJames = new BibleDAO("james");
+        BibleDAO notJames = new BibleDAO("james", null);
         final String defaultBook = "Mark";  // expected
 
         // Act
@@ -92,7 +134,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testValidBookUsing_BibleDAO_getBookName() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final String expected = "James";  // expected
 
         // Act
@@ -105,7 +147,7 @@ public class BibleDAOUnitTest {
     @Test
     public void basicTestOf_BibleDAO_getRange() throws Exception {
         // Arrange
-        BibleDAO mark = new BibleDAO("mark");
+        BibleDAO mark = new BibleDAO("mark", null);
         final int startChapter = 3;
         final int endChapter = 4;
         final int startVerse = 33;
@@ -135,7 +177,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testInvalidStartVerseIn_BibleDAO_getRange() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final int startChapter = 2;
         final int startVerse = 93;
         final int endChapter = 3;
@@ -156,7 +198,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testInvalidEndVerseIn_BibleDAO_getRange() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final int startChapter = 2;
         final int startVerse = 2;
         final int endChapter = 3;
@@ -177,7 +219,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testInvalidStartChapterIn_BibleDAO_getRange() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final int startChapter = 0;
         final int startVerse = 2;
         final int endChapter = 3;
@@ -198,7 +240,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testInvalidEndChapterIn_BibleDAO_getRange() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final int startChapter = 2;
         final int startVerse = 2;
         final int endChapter = 40;
@@ -219,7 +261,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testChaptersMisorderedIn_BibleDAO_getRange() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final int startChapter = 2;
         final int startVerse = 2;
         final int endChapter = 1;
@@ -240,7 +282,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testVersesMisorderedIn_BibleDAO_getRange() throws Exception {
         // Arrange
-        BibleDAO james = new BibleDAO("James");
+        BibleDAO james = new BibleDAO("James", null);
         final int startChapter = 2;
         final int startVerse = 2;
         final int endChapter = 2;
@@ -261,7 +303,7 @@ public class BibleDAOUnitTest {
     @Test
     public void testVerseCountingIn_BibleDAO_getVerseCount() throws Exception {
         // Arrange
-        BibleDAO psalms = new BibleDAO("Psalms");
+        BibleDAO psalms = new BibleDAO("Psalms", null);
         final int shortChapter = 117;
         final int shortVerseCount = 2;
         final int midChapter = 118;
@@ -283,8 +325,8 @@ public class BibleDAOUnitTest {
     @Test
     public void testChapterCounterIn_BibleDAO_getChapterCount() throws Exception {
         // Arrange
-        BibleDAO philemon = new BibleDAO("Philemon");
-        BibleDAO psalms = new BibleDAO("Psalms");
+        BibleDAO philemon = new BibleDAO("Philemon", null);
+        BibleDAO psalms = new BibleDAO("Psalms", null);
         final int philemonLength = 1;
         final int psalmsLength = 150;
 

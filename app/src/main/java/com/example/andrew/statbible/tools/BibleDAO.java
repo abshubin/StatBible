@@ -1,7 +1,9 @@
 package com.example.andrew.statbible.tools;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.provider.ContactsContract;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,35 +23,29 @@ public class BibleDAO {
     public static final String INVALID_REFERENCE = "INVALID REFERENCE";
 
     private String bookName;
-    private File book;
+    private DatabaseInterface db;
     private int[] verseCounts; // verse counts for each chapter, 1-indexed (0 index unused)
 
     // Gets just the book specified -- for testing only
-    public BibleDAO(String book) {
-
-        /* OLD WAY OF DOING IT -- DOESN'T WORK IN APP */
-        File dir = new File("/home/andrew/AndroidStudioProjects/StatBible/app/" +
-                            "src/main/java/com/example/andrew/statbible/tools/kjv");
-        int bookNum = getBookNumber(book);
-        this.bookName = book;
-        if (bookNum == 0) {
-            bookNum = getBookNumber("Mark");  // No particular reason...
-            this.bookName = "Mark";
+    public BibleDAO(String book, Context context) {
+        if (context != null) {  // Use DBHelper
+            db = new DBHelper(context);
+        } else {  // Testing, use DBTestHelper
+            db = new DBTestHelper();
         }
-        for (File file : dir.listFiles()) {
-            if (file.getName().startsWith(bookNum + "")) {
-                this.book = file;
-                countVerses();
-                return;
-            }
+        try {
+            db.createDataBase();
+        } catch (Exception e) {
+            throw new Error("Unable to create database.");
         }
-    }
 
-    // Also sets up the book, but takes the file object instead...
-    public BibleDAO(File book) {
-        String[] parts = book.getName().split(" ");
-        bookName = parts[parts.length - 1];
-        countVerses();
+        try {
+            db.openDataBase();
+            bookName = filter(book);
+            countVerses();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String getBookName() {
@@ -64,26 +60,19 @@ public class BibleDAO {
      * result[1]... The returned text.
      */
     public String[] getVerse(int chapter, int verse) {
-        String referenceText = this.bookName + " " + chapter + ":" + verse;
-        String passageText = "";
-
-        try (BufferedReader br = new BufferedReader(new FileReader(book))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.startsWith(chapter + ":" + verse + " ")) {
-                    passageText = stripReference(line);
-                }
-            }
-        } catch (Exception e){
-            e.printStackTrace();
+        String reference = bookName + " " + chapter + ":" + verse;
+        String text = "";
+        DatabaseResults results = db.select("text from verses where " +
+                                            "book = " + getBookNumber(bookName) + " and " +
+                                            "chapter = " + chapter + " and " +
+                                            "verse = " + verse);
+        if (results.moveToNext()) {
+            text = results.getString("text");
+        } else {
+            text = INVALID_REFERENCE;
         }
-
-        if (passageText.equals("")) {
-            passageText = INVALID_REFERENCE;
-        }
-
-        String[] resultPackage = {referenceText, passageText};
-        return resultPackage;
+        String[] result = {reference, text.trim()};
+        return result;
     }
 
     /*
@@ -95,112 +84,95 @@ public class BibleDAO {
      */
     public String[] getRange(int startChapter, int startVerse,
                              int endChapter,   int endVerse) {
-        String referenceText = this.bookName + " ";
-        if (startChapter == endChapter) {
-            referenceText += startChapter + ":" + startVerse + "-" + endVerse;
-        } else {
-            referenceText += startChapter + ":" + startVerse;
-            referenceText += " - ";
-            referenceText += endChapter + ":" + endVerse;
-        }
-        String passageText = "";
-        if ((endChapter == startChapter && endVerse < startVerse)
-                || (endChapter < startChapter)) {
-            passageText = INVALID_REFERENCE;
-        }
-        String[] start = getVerse(startChapter, startVerse);
-        String[] end   = getVerse(endChapter,   endVerse);
-        if (start[1].equals(INVALID_REFERENCE) || end[1].equals(INVALID_REFERENCE)) {
-            passageText = INVALID_REFERENCE;
-        }
 
-        if (passageText.equals("")) {
-            try (BufferedReader br = new BufferedReader(new FileReader(book))) {
-                String line;
-                boolean started = false;
-                while ((line = br.readLine()) != null) {
-                    if (started) {
-                        if (line.startsWith(endChapter + ":" + endVerse + " " + end[1])) {
-                            passageText += " " + stripReference(line);
-                            break;
-                        } else {
-                            passageText += " " + stripReference(line);
-                        }
-                    } else {
-                        if (line.startsWith(startChapter + ":" + startVerse + " " + start[1])) {
-                            passageText = stripReference(line);
-                            started = true;
-                        }
-                    }
+        String reference = bookName + " ";
+        String text = "";
+        boolean misorderedNeighborVerses = false;
+        if (startChapter == endChapter) {
+            reference += startChapter + ":" + startVerse + "-" + endVerse;
+            misorderedNeighborVerses = startVerse > endVerse;
+        } else {
+            reference += startChapter + ":" + startVerse + " - "
+                    + endChapter + ":" + endVerse;
+        }
+        if (startChapter == endChapter && startVerse == endVerse) {
+            return this.getVerse(startChapter, startVerse);
+        }
+        boolean failCondition1 = startChapter < 1 || startVerse < 1
+                                    || endChapter < 1 || endVerse < 1;
+        boolean failCondition2 = startChapter > getChapterCount()
+                                    || endChapter > getChapterCount();
+        if (failCondition1 || failCondition2 || misorderedNeighborVerses) {
+            text = INVALID_REFERENCE;
+        } else if (startVerse > verseCounts[startChapter] || endVerse > verseCounts[endChapter]) {
+            text = INVALID_REFERENCE;
+        } else {
+            DatabaseResults results = db.select("chapter, verse, text from verses where " +
+                    "book = " + getBookNumber(bookName) + " and " +
+                    "chapter >= " + startChapter + " and " +
+                    "chapter <= " + endChapter);
+            while (results.moveToNext()) {
+                int verse = results.getInt("verse");
+                int chapter = results.getInt("chapter");
+                boolean condition1 = (chapter == startChapter) && (verse >= startVerse);
+                boolean condition2 = (chapter > startChapter) && (chapter < endChapter);
+                boolean condition3 = (chapter == endChapter) && (verse <= endVerse);
+
+                if (condition1 || condition2 || condition3) {
+                    text += results.getString("text").trim() + " ";
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+
+                if (chapter == endChapter && verse > endVerse) {
+                    break;
+                }
             }
         }
-
-        String[] resultPackage = {referenceText, passageText};
-        return resultPackage;
+        if (text.equals("")) {
+            text = INVALID_REFERENCE;
+        }
+        String[] result = {reference, text.trim()};
+        return result;
     }
 
     /*
      * Returns the number of verses in the specified chapter.
      */
     public int getVerseCount(int chapter) {
-        if (chapter >= verseCounts.length || chapter < verseCounts.length) {
+        if (chapter >= verseCounts.length || chapter < 1) {
             return 0;
         }
         return verseCounts[chapter];
     }
 
     public int getChapterCount() {
+        if (verseCounts == null) return 0;
         return verseCounts.length - 1;
     }
 
     private void countVerses() {
-        try(BufferedReader br = new BufferedReader(new FileReader(book))) {
-            ArrayList<Integer> chapters = new ArrayList<>(); // tallys up the chapters and their
-                                                             // verse counts.
-            String line;
-            int currentChapter = 0;
-            int currentVerseCount = 0;
-            while ((line = br.readLine()) != null) {
-                if (line.substring(0, 5).contains(":")) {
-                    String reference = line.split(" ")[0];
-                    int chapter = Integer.parseInt(reference.split(":")[0]);
-                    if (chapter == currentChapter) {
-                        currentVerseCount++;
-                    } else {
-                        currentChapter++;
-                        chapters.add(currentVerseCount);
-                        currentVerseCount = 1;
-                    }
-                }
-            }
-            chapters.add(currentVerseCount);
-
-            verseCounts = new int[chapters.size()];
-            for (int i = 0; i < chapters.size(); i++) {
-                verseCounts[i] = chapters.get(i);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static String stripReference(String rawVerse) {
-        if (!rawVerse.split(" ")[0].contains(":")) {
-            return rawVerse;
-        }
-        String cleanText = "";
-        String[] passage = Arrays.copyOfRange(rawVerse.split(" "), 1, rawVerse.split(" ").length);
-        for (String word : passage) {
-            if (word.equals(passage[0])) {
-                cleanText = word;
+        DatabaseResults results = db.select("chapter, verse from verses "
+                                            + "where book = " + BibleDAO.getBookNumber(bookName));
+        ArrayList<Integer> chapters = new ArrayList<>();
+        int currentChapter = 1;
+        int verseCount = 0;
+        chapters.add(verseCount);  // To create 1-indexing.
+        while (results.moveToNext()) {
+            int chapter = results.getInt("chapter");
+            int verse = results.getInt("verse");
+            if (chapter != currentChapter) {
+                currentChapter++;
+                chapters.add(verseCount);
+                verseCount = 1;
             } else {
-                cleanText += " " + word;
+                verseCount++;
             }
         }
-        return cleanText;
+        chapters.add(verseCount);
+
+        verseCounts = new int[chapters.size()];
+        for (int i = 0; i < verseCounts.length; i++) {
+            verseCounts[i] = chapters.get(i);
+        }
     }
 
     public static int getBookNumber(String simpleName) {
@@ -247,5 +219,15 @@ public class BibleDAO {
         }
 
         return set;
+    }
+
+    private static String filter(String bookName) {
+        String[] validNames = getBookNames();
+        for (String validName : validNames) {
+            if (validName.equals(bookName)) {
+                return validName;
+            }
+        }
+        return "Mark";  // Default. Why? No particular reason...
     }
 }

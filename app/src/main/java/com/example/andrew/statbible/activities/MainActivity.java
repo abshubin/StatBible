@@ -2,6 +2,8 @@ package com.example.andrew.statbible.activities;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.net.Uri;
+import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         mBookSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                book = new BibleDAO(getBookFile((String) adapterView.getItemAtPosition(i)));
+                book = new BibleDAO((String) adapterView.getItemAtPosition(i), getApplicationContext());
                 Integer[] chapterNumbers = getRange(1, book.getChapterCount());
                 mStartChapter.setEnabled(true);
                 mStartChapter.setAdapter(new ArrayAdapter<Integer>(MainActivity.this,
@@ -105,29 +107,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private File getBookFile(String bookName) {
-        // This bit retrieved from https://stackoverflow.com/questions/34709210/creating-a-file-object-from-a-resource
-        String filename = "";
-        int booknum = BibleDAO.getBookNumber(bookName);
-        if (booknum > 9) filename += "0";
-        filename += booknum + " - " + bookName;
-        InputStream inStream;
-        try {
-            inStream = getAssets().open(filename);
-            File tempFile = File.createTempFile("foo", "bar");
-            byte[] buffer = new byte[1024];
-            int read;
-            OutputStream out = new FileOutputStream(tempFile);
-            while ((read = inStream.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
-            }
-            return tempFile;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     private static Integer[] getRange(int first, int last) {
