@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     Button mGoButton;
     Spinner mBookSelector;
     Spinner mStartChapter;
-    Spinner mEndChapter;
+//    Spinner mEndChapter;
     BibleDAO book;
 
     int start = 0;
@@ -55,20 +55,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mEndChapter = (Spinner) findViewById(edu.calbaptist.shubin.statbible.R.id.endChapterSpinner);
-        mEndChapter.setEnabled(false);
-        mEndChapter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                end = Integer.parseInt((String) adapterView.getItemAtPosition(i));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                // do nothing
-            }
-        });
+//        mEndChapter = (Spinner) findViewById(edu.calbaptist.shubin.statbible.R.id.endChapterSpinner);
+//        mEndChapter.setEnabled(false);
+//        mEndChapter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                end = Integer.parseInt((String) adapterView.getItemAtPosition(i));
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//                // do nothing
+//            }
+//        });
 
         mStartChapter = (Spinner) findViewById(edu.calbaptist.shubin.statbible.R.id.startChapterSpinner);
         mStartChapter.setEnabled(false);
@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 start = Integer.parseInt((String) adapterView.getItemAtPosition(i));
+                end = start;
             }
 
             @Override
@@ -96,8 +97,8 @@ public class MainActivity extends AppCompatActivity {
                 String[] chapters = getRange(1, count);
                 setSpinnerContent(mStartChapter, chapters);
                 mStartChapter.setEnabled(true);
-                setSpinnerContent(mEndChapter, chapters);
-                mEndChapter.setEnabled(true);
+//                setSpinnerContent(mEndChapter, chapters);
+//                mEndChapter.setEnabled(true);
                 mGoButton.setEnabled(true);
             }
 

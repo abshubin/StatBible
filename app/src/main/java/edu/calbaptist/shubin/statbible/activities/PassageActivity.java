@@ -108,7 +108,7 @@ public class PassageActivity extends AppCompatActivity {
                 int[] partsCounts = trie.countParts(word);
                 for (int i = 0; i < partsCounts.length; i++) {
                     if (partsCounts[i] > 0) {
-                        message += "\n\"" + word.substring(0, i + 1) + "...\"  (" + partsCounts[i]
+                        message += "\n\"" + word.substring(0, i + 1).toLowerCase() + "...\"  (" + partsCounts[i]
                                 + " times)";
                     }
                 }

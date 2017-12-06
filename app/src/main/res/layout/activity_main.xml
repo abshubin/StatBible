@@ -98,7 +98,7 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="from"/>
+                android:text="Chapter"/>
 
             <Spinner
                 android:id="@+id/startChapterSpinner"
@@ -118,21 +118,6 @@
             app:layout_constraintBottom_toTopOf="@+id/space2"
             app:layout_constraintTop_toBottomOf="@+id/textView2"
             tools:layout_editor_absoluteX="8dp">
-
-            <TextView
-                android:id="@+id/endLabel"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="to"/>
-
-            <Spinner
-                android:id="@+id/endChapterSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_weight="1"
-                android:background="?attr/colorControlHighlight"
-                android:spinnerMode="dialog"/>
 
         </LinearLayout>
     </LinearLayout>
