@@ -17,8 +17,9 @@ public class FrequencyTrieUnitTest {
         // Arrange
         String text1 = "This is some text that is a thing.";
         String text2 = "This is this and that is that this.";
-        FrequencyTrie trie1 = new FrequencyTrie(text1);
-        FrequencyTrie trie2 = new FrequencyTrie(text2);
+        String[] stopwords = {""};
+        FrequencyTrie trie1 = new FrequencyTrie(text1, stopwords);
+        FrequencyTrie trie2 = new FrequencyTrie(text2, stopwords);
         final int expected1_is = 2;
         final int expected1_this = 1;
         final int expected1_thing = 1;
@@ -47,7 +48,8 @@ public class FrequencyTrieUnitTest {
     public void countParts_isCorrect() throws Exception {
         // Arrange
         String text = "This is some text that is a thing.";
-        FrequencyTrie trie = new FrequencyTrie(text);
+        String[] stopwords = {""};
+        FrequencyTrie trie = new FrequencyTrie(text, stopwords);
         final String search = "this";
         final int[] expected = {4, 3, 2, 1};
 
@@ -60,5 +62,20 @@ public class FrequencyTrieUnitTest {
         assertEquals("FAILED, second index different.", expected[1], actual[1]);
         assertEquals("FAILED, third index different.", expected[2], actual[2]);
         assertEquals("FAILED, fourth index different.", expected[3], actual[3]);
+    }
+
+    @Test
+    public void stopwords_worksCorrectly() throws Exception {
+        // Arrange
+        String text = "This is some text";
+        String[] stopwords = {"is"};
+        final int expected = 0;
+        FrequencyTrie trie = new FrequencyTrie(text, stopwords);
+
+        // Act
+        final int actual = trie.score("is");
+
+        // Assert
+        assertEquals("FAILED, stopword not accounted for in score.", expected, actual);
     }
 }
