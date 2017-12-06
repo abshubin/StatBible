@@ -109,8 +109,10 @@ public class PassageActivity extends AppCompatActivity {
                 message = "";
                 int[] partsCounts = trie.countParts(word);
                 for (int i = 0; i < partsCounts.length; i++) {
-                    message += "\n\"" + word.substring(0, i + 1) + "...\"  (" + partsCounts[i]
-                        + " times)";
+                    if (partsCounts[i] > 0) {
+                        message += "\n\"" + word.substring(0, i + 1) + "...\"  (" + partsCounts[i]
+                                + " times)";
+                    }
                 }
                 alert.setMessage(message);
                 alert.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
