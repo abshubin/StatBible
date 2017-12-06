@@ -3,6 +3,7 @@ package com.example.andrew.statbible.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -98,12 +100,17 @@ public class PassageActivity extends AppCompatActivity {
         SpannableString link = makeLinkSpan(word, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String book = (String) getIntent().getStringExtra(EXTRA_PASSAGE_REFERENCE);
+                book = book.split(" ")[0];
+                if (book.equals("Psalm")) book += "s";
+                String message = "WORD/PREFIX FREQUENCY \n(in " + book + ")";
                 AlertDialog alert = new AlertDialog.Builder(PassageActivity.this).create();
-                alert.setTitle(word);
-                String message = "";
+                alert.setTitle(message);
+                message = "";
                 int[] partsCounts = trie.countParts(word);
                 for (int i = 0; i < partsCounts.length; i++) {
-                    message += "\n" + word.substring(0, i + 1) + " " + partsCounts[i];
+                    message += "\n\"" + word.substring(0, i + 1) + "...\"  (" + partsCounts[i]
+                        + " times)";
                 }
                 alert.setMessage(message);
                 alert.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",

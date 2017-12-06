@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">StatBible</string>
     <string name="info_text">
-        Text deemed statistically significant is colored blue and is clickable.
+        Text deemed statistically significant is colored red, underlined, and is clickable.
     </string>
     <string name="large_text">
         "Material is the metaphor.\n\n"

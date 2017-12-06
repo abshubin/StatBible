@@ -2,11 +2,14 @@ package com.example.andrew.statbible.activities;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.os.EnvironmentCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -14,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.R.layout;
+import android.R.drawable;
 
 import com.example.andrew.statbible.R;
 import com.example.andrew.statbible.tools.BibleDAO;
@@ -53,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 if (start > 0 && end > 0 && book != null) {
                     String[] range = book.getRange(start, 1, end, book.getVerseCount(end));
                     Intent intent = PassageActivity.newIntent(MainActivity.this, range[0], range[1]);
+                    mGoButton.setBackgroundResource(drawable.ic_menu_search);
                     startActivity(intent);
                 }
             }
