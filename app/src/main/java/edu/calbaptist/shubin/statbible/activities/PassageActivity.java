@@ -27,9 +27,9 @@ import java.util.ArrayList;
 public class PassageActivity extends AppCompatActivity {
 
     private static final String EXTRA_PASSAGE_REFERENCE =
-            "com.example.andrew.edu.calbaptist.shubin.statbible.passage_reference";
+            "edu.calbaptist.shubin.statbible.passage_reference";
     private static final String EXTRA_PASSAGE_TEXT =
-            "com.example.andrew.edu.calbaptist.shubin.statbible.passage_text";
+            "edu.calbaptist.shubin.statbible.passage_text";
 
     private static final int SCORE_THRESHOLD = 20;
 

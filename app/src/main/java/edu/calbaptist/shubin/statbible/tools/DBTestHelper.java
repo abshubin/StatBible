@@ -16,7 +16,7 @@ import java.sql.Statement;
 public class DBTestHelper implements DatabaseInterface {
 
     private static final String DB_FULL_PATH = "/home/andrew/AndroidStudioProjects/StatBible/"
-                                            + "app/src/test/java/com/example/andrew/edu.calbaptist.shubin.statbible/kjv.db";
+                                            + "app/src/test/java/edu/calbaptist/shubin/statbible/kjv.db";
 
     private Connection conn;
 

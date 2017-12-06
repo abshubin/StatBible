@@ -6,6 +6,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,7 +23,7 @@ import java.io.OutputStream;
 public class DBHelper extends SQLiteOpenHelper implements DatabaseInterface {
 
     //The Android's default system path of your application database.
-    private static final String DB_PATH = "/data/data/com.example.andrew.edu.calbaptist.shubin.statbible/databases/";
+    private static final String DB_PATH = "/data/data/edu.calbaptist.shubin.statbible/databases/";
 
     private static final String DB_NAME = "kjv";
 
